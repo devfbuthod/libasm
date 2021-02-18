@@ -68,6 +68,143 @@ void    strcpy_test(void)
 		printf("[ko]wrong result with \"\"\n");
 }
 
+void	write_test(void)
+{
+	ssize_t	ret;
+	int     fd = open("write_test.txt", O_CREAT | O_WRONLY | O_TRUNC, 0777);
+
+	errno = 0;
+
+	printf("\n\\***              write               ***\\\n\n");
+
+	printf("test 1\n");
+	dprintf(1, "Real write : |");
+	ret = write(1, "", 0);
+	printf("| ret : %zd errno : %d\n", ret, errno);
+	dprintf(1, "Your write : |");
+	ret = ft_write(1, "", 0);
+	printf("| ret : %zd errno : %d", ret, errno);
+	printf("\n\n");
+
+	printf("test 2\n");
+	dprintf(1, "Real write : |");
+	ret = write(1, "test 2", 6);
+	printf("| ret : %zd errno : %d\n", ret, errno);
+	dprintf(1, "Your write : |");
+	ret = ft_write(1, "test 2", 6);
+	printf("| ret : %zd errno : %d", ret, errno);
+	printf("\n\n");
+
+	printf("test 3 (check \"write_test.txt\", there should only be \"Bonjour\\n\" twice)\n");
+	dprintf(1, "Real write : |");
+	ret = write(fd, "Bonjour\n", 8);
+	printf("| ret : %zd errno : %d\n", ret, errno);
+	dprintf(1, "Your write : |");
+	ret = ft_write(fd, "Bonjour\n", 8);
+	printf("| ret : %zd errno : %d", ret, errno);
+	printf("\n\n");
+
+	printf("test 4\n");
+	dprintf(1, "Real write : |");
+	ret = write(-1, "Bonjour\n", 8);
+	printf("| ret : %zd errno : %d\n", ret, errno);
+	dprintf(1, "Your write : |");
+	ret = ft_write(-1, "Bonjour\n", 8);
+	printf("| ret : %zd errno : %d", ret, errno);
+	printf("\n\n");
+
+	close(fd);
+}
+
+void	read_test(void)
+{
+	int	fd;
+	int	ret;
+	int	error;
+	int	ret2;
+	char	buff1[1000];
+	char	buff2[1000];
+
+	printf("\n\\***              read               ***\\\n\n");
+	fd = open("Makefile", O_RDONLY);
+	ret = read(fd, buff1, 999);
+	ret >= 0 ? buff1[ret] = 0 : 0;
+	error = errno;
+	close(fd);
+	fd = open("Makefile", O_RDONLY);
+	ret2 = ft_read(fd, buff2, 999);
+	ret2 >= 0 ? buff2[ret2] = 0 : 0;
+	close(fd);
+	if (ret != ret2)
+		printf("Reading Makefile with a len of 999\n[ko]wrong ret value\n");
+	else if (error != errno)
+		printf("Reading Makefile with a len of 999\n[ko]wrong value in errno\n");
+	else if (strcmp(buff1, buff2))
+		printf("Reading Makefile with a len of 999\n[ko]reading wrong\n");
+	else
+		printf("[ok]\n");
+
+	fd = open("empty.txt", O_RDONLY);
+	ret = read(fd, buff1, 100);
+	ret >= 0 ? buff1[ret] = 0 : 0;
+	error = errno;
+	close(fd);
+	fd = open("empty.txt", O_RDONLY);
+	ret2 = ft_read(fd, buff2, 100);
+	ret2 >= 0 ? buff2[ret2] = 0 : 0;
+	close(fd);
+	if (ret != ret2)
+		printf("Reading Makefile with a len of 999\n[ko]wrong ret value\nexpected : %d, yours : %d\n", ret, ret2);
+	else if (error != errno)
+		printf("Reading Makefile with a len of 999\n[ko]wrong value in errno\n");
+	else if (strcmp(buff1, buff2))
+		printf("Reading Makefile with a len of 999\n[ko]reading wrong\n");
+	else
+		printf("[ok]\n");
+
+	fd = -1;
+	ret = read(fd, buff1, 100);
+	ret >= 0 ? buff1[ret] = 0 : 0;
+	error = errno;
+	fd = -1;
+	ret2 = ft_read(fd, buff2, 100);
+	ret2 >= 0 ? buff2[ret2] = 0 : 0;
+	if (ret != ret2)
+		printf("Reading Makefile with a len of 999\n[ko]wrong ret value\n");
+	else if (error != errno)
+		printf("Reading Makefile with a len of 999\n[ko]wrong value in errno\n");
+	else if (ret >= 0 && strcmp(buff1, buff2))
+		printf("Reading Makefile with a len of 999\n[ko]reading wrong\n");
+	else
+		printf("[ok]\n");
+}
+
+void	strdup_test(void)
+{
+	char	*dup;
+	char	str[] = "Hello world\n";
+
+	printf("\n\\***              strdup               ***\\\n\n");
+	dup = ft_strdup(str);
+	if (dup != str && !strcmp(dup, str))
+		printf("[ok]\n");
+	else
+		printf("[ko]wrong result with \"Hello world\\n\"\n");
+	free(dup);
+	dup = ft_strdup(str + 11);
+	if (dup != (str + 11) && !strcmp(dup, (str + 11)))
+		printf("[ok]\n");
+	else
+		printf("[ko]wrong result with \"\\n\"\n");
+	free(dup);
+	dup = ft_strdup(str + 12);
+	if (dup != (str + 12) && !strcmp(dup, (str + 12)))
+		printf("[ok]\n");
+	else
+		printf("[ko]wrong result with \"\"\n");
+	free(dup);
+}
+
 int main()
 {
     strlen_test();
@@ -75,6 +212,12 @@ int main()
     strcpy_test();
 
 	strcmp_test();
+
+	write_test();
+
+	read_test();
+
+	strdup_test();
 
     return (0);
 }
